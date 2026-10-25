@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atualização cadastral — Servis</title>
+<style>
+  :root{ --navy:#222F59; --gold:#E07B2C; --bg:#F4F4F4; --txt:#1a2333; --mut:#667085; --line:#d9dce3; --ok:#16a34a; --ruim:#dc2626; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--txt); line-height:1.45; }
+  .topo{ background:var(--navy); color:#fff; padding:16px 20px; border-bottom:4px solid var(--gold); }
+  .marca{ font-weight:800; letter-spacing:.14em; font-size:18px; } .marca span{ font-weight:400; letter-spacing:.2em; font-size:13px; opacity:.85; }
+  .sub{ font-size:12px; opacity:.8; letter-spacing:.08em; text-transform:uppercase; margin-top:2px; }
+  main{ max-width:640px; margin:0 auto; padding:18px 16px 40px; }
+  h1{ font-size:21px; margin:6px 0 4px; color:var(--navy); } .lead{ margin:0 0 14px; color:var(--mut); font-size:14.5px; }
+  fieldset{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 14px 6px; margin:0 0 14px; min-width:0; }
+  legend{ font-weight:700; color:var(--navy); padding:0 6px; font-size:15px; }
+  label{ display:block; font-size:14px; font-weight:600; margin:0 0 12px; } label .op{ font-weight:400; color:var(--mut); font-size:12.5px; }
+  input[type=text],input[type=email],input[type=tel],input[type=date]{ width:100%; margin-top:5px; padding:12px; border:1px solid #c5c9d3; border-radius:8px; font-size:16px; font-family:inherit; background:#fff; }
+  input:focus{ outline:2px solid var(--gold); border-color:var(--gold); }
+  .erro-campo{ outline:2px solid var(--ruim); border-radius:8px; }
+  .cond{ background:#fff; border:1px solid var(--line); border-top:4px solid var(--gold); border-radius:10px; padding:12px 14px; margin-bottom:12px; } .cond small{ display:block; color:var(--mut); font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; } .cond b{ font-size:18px; color:var(--navy); }
+  .morador{ background:#fff; border:1px solid var(--line); border-left:5px solid var(--gold); border-radius:10px; padding:12px 14px 6px; margin:0 0 14px; }
+  .mhead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; } .mhead strong{ color:var(--navy); font-size:15.5px; }
+  .remover{ background:#fff; border:1px solid var(--ruim); color:var(--ruim); border-radius:8px; padding:6px 11px; font-size:13px; font-weight:600; cursor:pointer; }
+  .foto{ text-align:center; margin-bottom:10px; } .previa{ width:150px; height:150px; border-radius:12px; object-fit:cover; border:2px dashed #b9bfcc; background:#f8f9fb; display:block; margin:4px auto 10px; }
+  .botoes{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
+  .botoes label{ margin:0; background:var(--navy); color:#fff; padding:10px 14px; border-radius:8px; font-size:14px; cursor:pointer; } .botoes label.sec{ background:#fff; color:var(--navy); border:1px solid var(--navy); } .botoes input{ display:none; }
+  .dica{ font-size:12.5px; color:var(--mut); margin:0 0 8px; }
+  #maisMorador{ width:100%; background:#fff; border:2px dashed var(--navy); color:var(--navy); font-size:15.5px; font-weight:700; padding:13px; border-radius:10px; cursor:pointer; margin:0 0 14px; }
+  .aceite{ display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:13.5px; } .aceite input{ margin-top:3px; width:20px; height:20px; flex:0 0 auto; }
+  #erro{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:14px; margin:0 0 12px; }
+  #enviar{ width:100%; border:0; background:var(--gold); color:#fff; font-size:17px; font-weight:800; padding:15px; border-radius:10px; cursor:pointer; } #enviar:disabled{ opacity:.6; cursor:wait; }
+  #telaOk{ text-align:center; background:#fff; border:1px solid var(--line); border-top:4px solid var(--ok); border-radius:10px; padding:28px 18px; } #telaOk h2{ color:var(--navy); margin:6px 0; } #telaOk .ic{ font-size:46px; }
+  #telaOk button{ display:block; width:100%; margin-top:10px; background:#fff; border:1px solid var(--navy); color:var(--navy); padding:12px 16px; border-radius:8px; font-weight:700; font-size:15px; cursor:pointer; }
+  .rodape{ text-align:center; font-size:12px; color:var(--mut); margin-top:18px; }
+  [hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+<header class="topo"><div class="marca">SERVIS <span>ELETRÔNICA</span></div><div class="sub">Portaria Remota · Atualização cadastral</div></header>
+<main>
+  <div id="telaForm">
+    <h1>Atualização cadastral</h1>
+    <p class="lead">Informe o seu condomínio e a sua unidade e cadastre os moradores com os dados e uma foto do rosto. Se mais de uma pessoa mora na unidade, use o botão para adicionar cada morador.</p>
+    <form id="f" novalidate>
+      <fieldset>
+        <legend>Onde você mora</legend>
+        <div class="cond" id="blocoCondominio" hidden><small>Condomínio</small><b id="nomeCondominio"></b><span id="filialCondominio" hidden style="display:block; font-size:12.5px; color:var(--mut); margin-top:2px;"></span></div>
+        <label id="campoCondominio" hidden>Condomínio *<input type="text" id="condominio" list="listaCondominios" maxlength="120" placeholder="Digite parte do nome e escolha na lista" autocomplete="off"><datalist id="listaCondominios"></datalist></label>
+        <label>Casa ou apartamento (número) *<input type="text" id="unidade" maxlength="30" placeholder="Ex.: Apto 302 ou Casa 12" autocomplete="off"></label>
+      </fieldset>
+      <div id="moradores"></div>
+      <button type="button" id="maisMorador">➕ Adicionar outro morador desta unidade</button>
+      <fieldset>
+        <label class="aceite"><input type="checkbox" id="aceite"> <span>Autorizo o uso dos dados e das fotos de todos os moradores informados para o cadastro e o controle de acesso do condomínio. *</span></label>
+      </fieldset>
+      <input type="text" id="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; height:0; width:0; opacity:0;">
+      <p id="erro" role="alert" hidden></p>
+      <button type="submit" id="enviar">Enviar cadastro</button>
+    </form>
+  </div>
+  <div id="telaOk" hidden>
+    <div class="ic">✅</div>
+    <h2>Cadastro enviado!</h2>
+    <p id="resumoOk"></p>
+    <button type="button" id="maisUm">➕ Adicionar mais um morador nesta unidade</button>
+    <button type="button" id="outraUnidade">Cadastrar outra unidade</button>
+  </div>
+  <p class="rodape">Servis Eletrônica · Portaria Remota<br>Seus dados são usados apenas para o cadastro e o controle de acesso.</p>
+</main>
+<script>
+(function(){
+  var SUPABASE_URL = 'https://nnfwmkkcctnwcrjmspij.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_Ua2Ua9PYKoeHjN87dDP2_g_TM5ctjRw';
+  var TABELA = 'fichas_cadastrais', BUCKET = 'fotos-cadastro', MAX_MORADORES = 10;
+  var CONDOMINIOS = [["ASSOCIACAO DO RESIDENCIAL DO TARUMA", "MANAUS", "ASSOCIACAO DO RESIDENCIAL DO TARUMA"], ["COND ALIPIO BASTOS", "CEARÁ", "COND ALIPIO BASTOS"], ["COND ASTURIAS", "MANAUS", "COND ASTURIAS"], ["COND CAJUINA", "SECOPI", "COND CAJUINA"], ["COND JARDIM AMERICA", "SECOPI", "COND JARDIM AMERICA"], ["COND KARINE BARRA DE OLIVEIRA", "MANAUS", "COND KARINE BARRA DE OLIVEIRA"], ["COND MORENA BRODER PARK", "SECOPI", "COND MORENA BRODER PARK"], ["COND. ACORES", "CEARÁ", "COND. ACORES"], ["COND. AGENDA 1 RESIDENCE", "SECOPI", "COND. AGENDA 1 RESIDENCE"], ["COND. AGENDA RESIDENCE 2", "SECOPI", "COND. AGENDA RESIDENCE 2"], ["COND. ALDEIA DOS VENTOS", "CEARÁ", "COND. ALDEIA DOS VENTOS"], ["COND. ALGARVE", "CEARÁ", "COND. ALGARVE"], ["COND. ANA KARINE", "MARANHÃO", "COND. ANA KARINE"], ["COND. ANA ROSA", "SECOPI", "COND. ANA ROSA"], ["COND. ANDROS", "CEARÁ", "COND. ANDROS"], ["COND. ANGELICA", "MARANHÃO", "COND. ANGELICA"], ["COND. AREZZO", "CEARÁ", "COND. AREZZO"], ["COND. ARMANDO SABOYA FILHO", "CEARÁ", "COND. ARMANDO SABOYA FILHO"], ["COND. ASTORIA", "CEARÁ", "COND. ASTORIA"], ["COND. ATHENAS", "CEARÁ", "COND. ATHENAS"], ["COND. AVALON", "SECOPI", "COND. AVALON"], ["COND. BAYSIDE", "CEARÁ", "COND. BAYSIDE"], ["COND. BELLE VILLE", "CEARÁ", "COND. BELLE VILLE"], ["COND. BENE VI", "CEARÁ", "COND. BENE VI"], ["COND. BENE VII", "CEARÁ", "COND. BENE VII"], ["COND. BERLIM LISBOA", "SECOPI", "COND. BERLIM LISBOA"], ["COND. BIENE", "CEARÁ", "COND. BIENE"], ["COND. BRISAS DO EUSEBIO", "CEARÁ", "COND. BRISAS DO EUSEBIO"], ["COND. BUGANVILIA", "SECOPI", "COND. BUGANVILIA"], ["COND. CANAA", "CEARÁ", "COND. CANAA (CEARÁ)"], ["COND. CANAA", "SECOPI", "COND. CANAA (SECOPI)"], ["COND. CANELEIRO", "SECOPI", "COND. CANELEIRO"], ["COND. CANTO BELLO", "CEARÁ", "COND. CANTO BELLO"], ["COND. CARLOS DRUMMOND DE ANDRADE", "MANAUS", "COND. CARLOS DRUMMOND DE ANDRADE"], ["COND. CASA BLANCA", "SECOPI", "COND. CASA BLANCA"], ["COND. CASCAIS DUNAS VILLAGE", "CEARÁ", "COND. CASCAIS DUNAS VILLAGE"], ["COND. CELSINA", "CEARÁ", "COND. CELSINA"], ["COND. CIDADE DE LONDRES", "MARANHÃO", "COND. CIDADE DE LONDRES"], ["COND. COMODORO", "MARANHÃO", "COND. COMODORO"], ["COND. CONCORD I", "CEARÁ", "COND. CONCORD I"], ["COND. COPENHAGUE", "CEARÁ", "COND. COPENHAGUE"], ["COND. COSTA AZUL", "CEARÁ", "COND. COSTA AZUL"], ["COND. COSTA DO SAUIPE", "MARANHÃO", "COND. COSTA DO SAUIPE"], ["COND. CRUZEIRO DO SUL", "CEARÁ", "COND. CRUZEIRO DO SUL"], ["COND. DAVID CARVALHO", "SECOPI", "COND. DAVID CARVALHO"], ["COND. DO ED MARANATA II", "CEARÁ", "COND. DO ED MARANATA II"], ["COND. DOS ANJOS CORREIA", "CEARÁ", "COND. DOS ANJOS CORREIA"], ["COND. DUNNAS XXI", "CEARÁ", "COND. DUNNAS XXI"], ["COND. EBENÉZER", "CEARÁ", "COND. EBENÉZER"], ["COND. ECOLIFE MINDU", "MANAUS", "COND. ECOLIFE MINDU"], ["COND. EDIFICIO ARUA", "CEARÁ", "COND. EDIFICIO ARUA"], ["COND. EDIFICIO COIMBRA", "CEARÁ", "COND. EDIFICIO COIMBRA"], ["COND. EDIFICIO DAS AMERICAS", "CEARÁ", "COND. EDIFICIO DAS AMERICAS"], ["COND. EDIFICIO GUILHERME ROCHA", "CEARÁ", "COND. EDIFICIO GUILHERME ROCHA"], ["COND. EDIFICIO TURMALINA", "CEARÁ", "COND. EDIFICIO TURMALINA"], ["COND. EDIFICIO VILLA BORGHESE", "CEARÁ", "COND. EDIFICIO VILLA BORGHESE"], ["COND. ELIANE", "CEARÁ", "COND. ELIANE"], ["COND. EMANOEL VELOSO", "SECOPI", "COND. EMANOEL VELOSO"], ["COND. EMANUELA", "CEARÁ", "COND. EMANUELA"], ["COND. ERS EVELINE RAQUEL SARA", "MARANHÃO", "COND. ERS EVELINE RAQUEL SARA"], ["COND. EUSEBIO PARK", "CEARÁ", "COND. EUSEBIO PARK"], ["COND. FLOR DE LIZ", "SECOPI", "COND. FLOR DE LIZ"], ["COND. FLORENCA", "CEARÁ", "COND. FLORENCA"], ["COND. FREI VICENTE SALVADOR", "CEARÁ", "COND. FREI VICENTE SALVADOR"], ["COND. FUNCHAL", "CEARÁ", "COND. FUNCHAL"], ["COND. GENESIS", "CEARÁ", "COND. GENESIS"], ["COND. GENTIL CARDOSO LINHARES", "CEARÁ", "COND. GENTIL CARDOSO LINHARES"], ["COND. GIARDINO DI MILANO", "MANAUS", "COND. GIARDINO DI MILANO"], ["COND. GOMES I", "CEARÁ", "COND. GOMES I"], ["COND. GOMES II", "CEARÁ", "COND. GOMES II"], ["COND. GRAHAM HILL", "CEARÁ", "COND. GRAHAM HILL"], ["COND. GRAND CLASSIC", "CEARÁ", "COND. GRAND CLASSIC"], ["COND. GRAND QUARTIER", "CEARÁ", "COND. GRAND QUARTIER"], ["COND. GRANLARA RESIDENCE", "CEARÁ", "COND. GRANLARA RESIDENCE"], ["COND. GREEN VILLE", "MANAUS", "COND. GREEN VILLE"], ["COND. GREEN VISION", "CEARÁ", "COND. GREEN VISION"], ["COND. H DOBAL", "SECOPI", "COND. H DOBAL"], ["COND. HARMONY RESIDENCES", "CEARÁ", "COND. HARMONY RESIDENCES"], ["COND. HELIOPOLIS PARK", "SECOPI", "COND. HELIOPOLIS PARK"], ["COND. ILHA DO SOL", "MARANHÃO", "COND. ILHA DO SOL"], ["COND. ILHA DOS ACORES", "SECOPI", "COND. ILHA DOS ACORES"], ["COND. ISLA VERDE", "CEARÁ", "COND. ISLA VERDE"], ["COND. ITAPERI", "CEARÁ", "COND. ITAPERI"], ["COND. JACARANDAR", "SECOPI", "COND. JACARANDAR"], ["COND. JAQUEIRAS 2", "MARANHÃO", "COND. JAQUEIRAS 2"], ["COND. JARDIM BOTANICO II", "CEARÁ", "COND. JARDIM BOTANICO II"], ["COND. JARDIM DO HORTO", "SECOPI", "COND. JARDIM DO HORTO"], ["COND. JARDIM DOS EUCALIPTOS", "MANAUS", "COND. JARDIM DOS EUCALIPTOS"], ["COND. JARDIM DOS NOIVOS", "SECOPI", "COND. JARDIM DOS NOIVOS"], ["COND. JARDIM VIA VENETO", "MANAUS", "COND. JARDIM VIA VENETO"], ["COND. JARDIM VILA RICA", "MANAUS", "COND. JARDIM VILA RICA"], ["COND. JARDINS ORQUIDEA E UIRAPURU", "CEARÁ", "COND. JARDINS ORQUIDEA E UIRAPURU (CEARÁ)"], ["COND. JARDINS ORQUIDEA E UIRAPURU", "MANAUS", "COND. JARDINS ORQUIDEA E UIRAPURU (MANAUS)"], ["COND. JOAO MESQUITA", "CEARÁ", "COND. JOAO MESQUITA"], ["COND. JOAO PAULO II", "MANAUS", "COND. JOAO PAULO II"], ["COND. JOSE MARIA CARDOSO", "CEARÁ", "COND. JOSE MARIA CARDOSO"], ["COND. JOSE VILAR", "CEARÁ", "COND. JOSE VILAR"], ["COND. KENNEDY", "SECOPI", "COND. KENNEDY"], ["COND. LA MADELEINE", "SECOPI", "COND. LA MADELEINE"], ["COND. LAJE DE PEDRA", "CEARÁ", "COND. LAJE DE PEDRA"], ["COND. LE BETULLE", "CEARÁ", "COND. LE BETULLE"], ["COND. LE BOULEVARD", "MANAUS", "COND. LE BOULEVARD"], ["COND. LE VERT JARDIM", "SECOPI", "COND. LE VERT JARDIM"], ["COND. LEBLON", "CEARÁ", "COND. LEBLON"], ["COND. LEODEGARIO PINHO", "CEARÁ", "COND. LEODEGARIO PINHO"], ["COND. LILIAN", "CEARÁ", "COND. LILIAN"], ["COND. LILIAN LEYNE", "CEARÁ", "COND. LILIAN LEYNE"], ["COND. LINHARES", "CEARÁ", "COND. LINHARES"], ["COND. LIRIDA MATOS", "CEARÁ", "COND. LIRIDA MATOS"], ["COND. LISBOA", "CEARÁ", "COND. LISBOA"], ["COND. LIVERPOOL", "MANAUS", "COND. LIVERPOOL"], ["COND. LONDON", "MANAUS", "COND. LONDON"], ["COND. LUANA RESIDENCE", "CEARÁ", "COND. LUANA RESIDENCE"], ["COND. LUCIANO CARNEIRO", "CEARÁ", "COND. LUCIANO CARNEIRO"], ["COND. LUMMA", "CEARÁ", "COND. LUMMA"], ["COND. LUXOR RESIDENCE", "CEARÁ", "COND. LUXOR RESIDENCE"], ["COND. MADRI", "CEARÁ", "COND. MADRI"], ["COND. MAGISTRAL", "MARANHÃO", "COND. MAGISTRAL"], ["COND. MAGNA VILLARIS I", "CEARÁ", "COND. MAGNA VILLARIS I"], ["COND. MAGNA VILLARIS II", "CEARÁ", "COND. MAGNA VILLARIS II"], ["COND. MAISON NOVA METROPOLE", "CEARÁ", "COND. MAISON NOVA METROPOLE"], ["COND. MANAUARA III", "MANAUS", "COND. MANAUARA III"], ["COND. MANDACARUS", "CEARÁ", "COND. MANDACARUS"], ["COND. MANUEL ISAAC PONTES", "CEARÁ", "COND. MANUEL ISAAC PONTES"], ["COND. MARAPONGA RESIDENCE CLUB", "CEARÁ", "COND. MARAPONGA RESIDENCE CLUB"], ["COND. MARECHAL RONDON", "CEARÁ", "COND. MARECHAL RONDON"], ["COND. MARIA ESTHER", "CEARÁ", "COND. MARIA ESTHER"], ["COND. MARILIA 2", "MARANHÃO", "COND. MARILIA 2"], ["COND. MARINO BEACH", "CEARÁ", "COND. MARINO BEACH"], ["COND. MAROQUINHA REBELO", "CEARÁ", "COND. MAROQUINHA REBELO"], ["COND. MARQUES SANTIAGO", "CEARÁ", "COND. MARQUES SANTIAGO"], ["COND. MARSOL", "MARANHÃO", "COND. MARSOL"], ["COND. MEDITERRANEE", "MANAUS", "COND. MEDITERRANEE"], ["COND. MELBOURNE PLACE", "CEARÁ", "COND. MELBOURNE PLACE"], ["COND. MIGUEL MACHADO", "CEARÁ", "COND. MIGUEL MACHADO"], ["COND. MILLENNIUM TOWER", "SECOPI", "COND. MILLENNIUM TOWER"], ["COND. MONTE LIBANO", "CEARÁ", "COND. MONTE LIBANO (CEARÁ)"], ["COND. MONTE LIBANO", "SECOPI", "COND. MONTE LIBANO (SECOPI)"], ["COND. MONTE RAINIER", "MARANHÃO", "COND. MONTE RAINIER"], ["COND. MONTESE", "SECOPI", "COND. MONTESE"], ["COND. MONTREAL", "CEARÁ", "COND. MONTREAL"], ["COND. MONTREAL RESIDENCE", "MARANHÃO", "COND. MONTREAL RESIDENCE"], ["COND. MONTSERRAT", "CEARÁ", "COND. MONTSERRAT"], ["COND. MONTVERNON", "CEARÁ", "COND. MONTVERNON"], ["COND. MORADA BRISA DO MAR", "CEARÁ", "COND. MORADA BRISA DO MAR"], ["COND. MORADA DAS GAIVOTAS", "CEARÁ", "COND. MORADA DAS GAIVOTAS"], ["COND. MORADAS DO PARQUE", "MANAUS", "COND. MORADAS DO PARQUE"], ["COND. MURICI", "MANAUS", "COND. MURICI"], ["COND. N. SRA. DE GUADALUPE", "CEARÁ", "COND. N. SRA. DE GUADALUPE"], ["COND. NADJA AGUIAR", "CEARÁ", "COND. NADJA AGUIAR"], ["COND. NAPOLI CITY", "CEARÁ", "COND. NAPOLI CITY"], ["COND. NATERCIA RIOS", "CEARÁ", "COND. NATERCIA RIOS"], ["COND. OASI FELICE", "CEARÁ", "COND. OASI FELICE"], ["COND. OCEAN PARK", "MANAUS", "COND. OCEAN PARK"], ["COND. PACO DE MESSEJANA", "CEARÁ", "COND. PACO DE MESSEJANA"], ["COND. PAGANINI", "CEARÁ", "COND. PAGANINI"], ["COND. PALAIS ROYAL", "CEARÁ", "COND. PALAIS ROYAL"], ["COND. PANORAMA", "CEARÁ", "COND. PANORAMA"], ["COND. PARANOA", "CEARÁ", "COND. PARANOA"], ["COND. PARMA", "CEARÁ", "COND. PARMA"], ["COND. PARQUE DOS RIOS I", "MANAUS", "COND. PARQUE DOS RIOS I"], ["COND. PAUL RICHARD", "CEARÁ", "COND. PAUL RICHARD"], ["COND. PETIT TRIANON", "CEARÁ", "COND. PETIT TRIANON"], ["COND. PLAZA VERONNESE", "CEARÁ", "COND. PLAZA VERONNESE"], ["COND. PORTA ROMANA", "CEARÁ", "COND. PORTA ROMANA"], ["COND. PORTAL DE LION", "CEARÁ", "COND. PORTAL DE LION"], ["COND. PORTAL DE SERRAMBI", "CEARÁ", "COND. PORTAL DE SERRAMBI"], ["COND. PORTAL DO PASSARE", "CEARÁ", "COND. PORTAL DO PASSARE"], ["COND. PORTO GUILHERME", "CEARÁ", "COND. PORTO GUILHERME"], ["COND. PORTO SEGURO", "CEARÁ", "COND. PORTO SEGURO"], ["COND. PRIMAVERA", "CEARÁ", "COND. PRIMAVERA"], ["COND. QUEBEC", "CEARÁ", "COND. QUEBEC"], ["COND. QUINTA DA BOA VISTA", "MARANHÃO", "COND. QUINTA DA BOA VISTA"], ["COND. QUINTAS DO CALHAU", "MARANHÃO", "COND. QUINTAS DO CALHAU"], ["COND. RAUL FONTENELLE DOUBLE SPACE", "CEARÁ", "COND. RAUL FONTENELLE DOUBLE SPACE"], ["COND. REAL PARK", "CEARÁ", "COND. REAL PARK"], ["COND. RECANTO DAS LARANJEIRAS", "MANAUS", "COND. RECANTO DAS LARANJEIRAS"], ["COND. RECANTO DAS PALMEIRAS", "SECOPI", "COND. RECANTO DAS PALMEIRAS"], ["COND. RENATA", "MARANHÃO", "COND. RENATA"], ["COND. RESERVA DO NORTE 2", "SECOPI", "COND. RESERVA DO NORTE 2"], ["COND. RESERVA DO NORTE 3", "SECOPI", "COND. RESERVA DO NORTE 3"], ["COND. RESERVA DO SUL", "SECOPI", "COND. RESERVA DO SUL"], ["COND. RESERVA DOS SABIAS 1", "SECOPI", "COND. RESERVA DOS SABIAS 1"], ["COND. RESERVA NATURA", "CEARÁ", "COND. RESERVA NATURA"], ["COND. RESIDENCIAL 3 ESTRELAS", "CEARÁ", "COND. RESIDENCIAL 3 ESTRELAS"], ["COND. RESIDENCIAL ACONCHEGO", "SECOPI", "COND. RESIDENCIAL ACONCHEGO"], ["COND. RESIDENCIAL AIRTON BEZERRA", "CEARÁ", "COND. RESIDENCIAL AIRTON BEZERRA"], ["COND. RESIDENCIAL BRASILIA I", "SECOPI", "COND. RESIDENCIAL BRASILIA I"], ["COND. RESIDENCIAL BRASILIA II", "SECOPI", "COND. RESIDENCIAL BRASILIA II"], ["COND. RESIDENCIAL DE ASSIS", "CEARÁ", "COND. RESIDENCIAL DE ASSIS"], ["COND. RESIDENCIAL JULIANA III", "MANAUS", "COND. RESIDENCIAL JULIANA III"], ["COND. RESIDENCIAL POLO SUL", "SECOPI", "COND. RESIDENCIAL POLO SUL"], ["COND. RESIDENCIAL POR DO SOL", "MANAUS", "COND. RESIDENCIAL POR DO SOL"], ["COND. RESIDENCIAL SABLES BLANC", "CEARÁ", "COND. RESIDENCIAL SABLES BLANC"], ["COND. RESIDENCIAL VILA REAL", "CEARÁ", "COND. RESIDENCIAL VILA REAL"], ["COND. RIO DA PRATA", "SECOPI", "COND. RIO DA PRATA"], ["COND. RIO DOURADO", "SECOPI", "COND. RIO DOURADO"], ["COND. RIO LIMA", "SECOPI", "COND. RIO LIMA"], ["COND. RIVIERA DI CAPRI", "CEARÁ", "COND. RIVIERA DI CAPRI"], ["COND. RIVIERA FRANCESA", "MANAUS", "COND. RIVIERA FRANCESA"], ["COND. ROSA MARIA", "CEARÁ", "COND. ROSA MARIA"], ["COND. ROYAL VILLE", "SECOPI", "COND. ROYAL VILLE"], ["COND. SAN GERARDO", "CEARÁ", "COND. SAN GERARDO"], ["COND. SAN JULIANO", "CEARÁ", "COND. SAN JULIANO"], ["COND. SAN MAGNUM", "CEARÁ", "COND. SAN MAGNUM"], ["COND. SAN MICHAEL", "CEARÁ", "COND. SAN MICHAEL"], ["COND. SAN SEBASTIAN", "CEARÁ", "COND. SAN SEBASTIAN"], ["COND. SAND LANE", "MANAUS", "COND. SAND LANE"], ["COND. SANTANA DE PARNAIBA", "CEARÁ", "COND. SANTANA DE PARNAIBA"], ["COND. SAO CONRADO", "SECOPI", "COND. SAO CONRADO"], ["COND. SARGITARIUS", "CEARÁ", "COND. SARGITARIUS"], ["COND. SATURNO", "CEARÁ", "COND. SATURNO"], ["COND. SINGOLARE", "MARANHÃO", "COND. SINGOLARE"], ["COND. SMART LARANJEIRAS", "MANAUS", "COND. SMART LARANJEIRAS"], ["COND. SOBERANO III", "CEARÁ", "COND. SOBERANO III"], ["COND. SOCORRO VILLAGE", "CEARÁ", "COND. SOCORRO VILLAGE"], ["COND. SOL NASCENTE II", "MANAUS", "COND. SOL NASCENTE II"], ["COND. SOLAR DE FATIMA", "SECOPI", "COND. SOLAR DE FATIMA"], ["COND. SOLAR DO PARNAIBA I", "SECOPI", "COND. SOLAR DO PARNAIBA I"], ["COND. SOLAR DOS VENTOS", "CEARÁ", "COND. SOLAR DOS VENTOS"], ["COND. ST MARCOS", "CEARÁ", "COND. ST MARCOS"], ["COND. ST STEVAM", "MARANHÃO", "COND. ST STEVAM"], ["COND. STILO", "CEARÁ", "COND. STILO"], ["COND. SUNVILLE RESIDENCE", "CEARÁ", "COND. SUNVILLE RESIDENCE"], ["COND. THE OFFICE TOWER", "SECOPI", "COND. THE OFFICE TOWER"], ["COND. THERTULIANO MILTOM BRANDAO", "SECOPI", "COND. THERTULIANO MILTOM BRANDAO"], ["COND. TICIANA MENDES", "CEARÁ", "COND. TICIANA MENDES"], ["COND. TM RESIDENCIAL 02", "CEARÁ", "COND. TM RESIDENCIAL 02"], ["COND. TOPAZIO", "MANAUS", "COND. TOPAZIO"], ["COND. TRACOA 2", "MARANHÃO", "COND. TRACOA 2"], ["COND. UIRAPURU", "CEARÁ", "COND. UIRAPURU"], ["COND. VALE DO PARAIBA", "MARANHÃO", "COND. VALE DO PARAIBA"], ["COND. VALENCIA RESIDENCE", "CEARÁ", "COND. VALENCIA RESIDENCE"], ["COND. VENEZA II", "CEARÁ", "COND. VENEZA II"], ["COND. VIA LUMINI", "CEARÁ", "COND. VIA LUMINI"], ["COND. VIDA", "MANAUS", "COND. VIDA"], ["COND. VILA CAMPESTRE", "SECOPI", "COND. VILA CAMPESTRE"], ["COND. VILA RICA", "SECOPI", "COND. VILA RICA"], ["COND. VILA VERANA", "CEARÁ", "COND. VILA VERANA"], ["COND. VILLA BELLAGIO", "CEARÁ", "COND. VILLA BELLAGIO"], ["COND. VILLA DE VALEGA", "SECOPI", "COND. VILLA DE VALEGA"], ["COND. VILLA DI FIORI", "CEARÁ", "COND. VILLA DI FIORI"], ["COND. VILLA DO CONDE", "SECOPI", "COND. VILLA DO CONDE"], ["COND. VILLA PARADISO", "CEARÁ", "COND. VILLA PARADISO"], ["COND. VILLA SOLARIUM", "CEARÁ", "COND. VILLA SOLARIUM"], ["COND. VILLAGE DA ILHA", "MARANHÃO", "COND. VILLAGE DA ILHA"], ["COND. VILLAGE DEL MONTE III", "CEARÁ", "COND. VILLAGE DEL MONTE III"], ["COND. VILLAGIO JARDINS 1", "MARANHÃO", "COND. VILLAGIO JARDINS 1"], ["COND. VILLAGIO JARDINS 2", "MARANHÃO", "COND. VILLAGIO JARDINS 2"], ["COND. VILLAGIO JARDINS 3", "MARANHÃO", "COND. VILLAGIO JARDINS 3"], ["COND. VILLAGIO JARDINS 4", "MARANHÃO", "COND. VILLAGIO JARDINS 4"], ["COND. VISCONDE DE MAUA", "CEARÁ", "COND. VISCONDE DE MAUA"], ["COND. VITORIA PARK", "CEARÁ", "COND. VITORIA PARK"], ["COND. YASMIM", "MARANHÃO", "COND. YASMIM"], ["CONDOMINIO AMILCAR ARAUJO", "CEARÁ", "CONDOMINIO AMILCAR ARAUJO"], ["CONDOMINIO LYON", "SECOPI", "CONDOMINIO LYON"], ["CONDOMINIO MOINHO DOS VENTOS", "SECOPI", "CONDOMINIO MOINHO DOS VENTOS"], ["CONDOMINIO NOE FORTES", "SECOPI", "CONDOMINIO NOE FORTES"], ["CONDOMINIO RESIDENCIAL PALACIO DAS ARTES", "MANAUS", "CONDOMINIO RESIDENCIAL PALACIO DAS ARTES"], ["CONDOMINIO VILLAGE ALCANTARA", "MARANHÃO", "CONDOMINIO VILLAGE ALCANTARA"], ["EDIFICIO ANTONIO FRADIQUE ACCIOLY", "CEARÁ", "EDIFICIO ANTONIO FRADIQUE ACCIOLY"], ["EDIFICIO ST JAMES", "MARANHÃO", "EDIFICIO ST JAMES"], ["EMPRESA BELECO OCARA", "CEARÁ", "EMPRESA BELECO OCARA"], ["EMPRESA BELECO SETOR CRISTAIS ARUARU MORADA NOVA", "CEARÁ", "EMPRESA BELECO SETOR CRISTAIS ARUARU MORADA NOVA"], ["EMPRESA BIO NATURE", "SECOPI", "EMPRESA BIO NATURE"], ["EMPRESA CARMEHIL ANTONIO SALES", "CEARÁ", "EMPRESA CARMEHIL ANTONIO SALES"], ["EMPRESA CARMEHIL BEZERRA DE MENEZES", "CEARÁ", "EMPRESA CARMEHIL BEZERRA DE MENEZES"], ["EMPRESA CARMEHIL GUSTAVO SAMPAIO", "CEARÁ", "EMPRESA CARMEHIL GUSTAVO SAMPAIO"], ["EMPRESA ECOMAX", "CEARÁ", "EMPRESA ECOMAX"], ["EMPRESA EPIFANIO JOSE ALMEIDA E SILVA", "CEARÁ", "EMPRESA EPIFANIO JOSE ALMEIDA E SILVA"], ["EMPRESA EXTAND", "SECOPI", "EMPRESA EXTAND"], ["EMPRESA FASTINOX", "CEARÁ", "EMPRESA FASTINOX"], ["EMPRESA FONNET NETWORKS", "CEARÁ", "EMPRESA FONNET NETWORKS"], ["EMPRESA LINK LOGISTICS TRANSPORTES", "CEARÁ", "EMPRESA LINK LOGISTICS TRANSPORTES"], ["EMPRESA MARESIA", "CEARÁ", "EMPRESA MARESIA"], ["EMPRESA PATRAO PARTICIPACOES", "CEARÁ", "EMPRESA PATRAO PARTICIPACOES"], ["EMPRESA TV JANGADEIRO SOBRAL", "CEARÁ", "EMPRESA TV JANGADEIRO SOBRAL"], ["ESCOLA ESTACAO DA LUZ", "CEARÁ", "ESCOLA ESTACAO DA LUZ"], ["HD TROPICAL RESIDENCE", "CEARÁ", "HD TROPICAL RESIDENCE"], ["HELBOR RESERVA DA PRACA", "CEARÁ", "HELBOR RESERVA DA PRACA"], ["IRACEMA RESIDENCE", "CEARÁ", "IRACEMA RESIDENCE"], ["JARDIM AMERICA", "CEARÁ", "JARDIM AMERICA"], ["LEONARDO DA VINCI", "MARANHÃO", "LEONARDO DA VINCI"], ["Marilia 1", "MARANHÃO", "Marilia 1"], ["RESIDENCIAL MORADA DA MESSEJANA", "CEARÁ", "RESIDENCIAL MORADA DA MESSEJANA"], ["SINDICATO DOS POLICIAIS PRF", "CEARÁ", "SINDICATO DOS POLICIAIS PRF"]];
+  var $ = function(id){ return document.getElementById(id); };
+  var params = new URLSearchParams(location.search);
+  var condominioUrl = (params.get('c') || '').trim().slice(0, 120), filialUrl = (params.get('f') || '').trim().slice(0, 40);
+  var cab = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
+
+  if (condominioUrl){ $('blocoCondominio').hidden = false; $('nomeCondominio').textContent = condominioUrl; if (filialUrl){ $('filialCondominio').hidden = false; $('filialCondominio').textContent = 'Filial ' + filialUrl; } }
+  else {
+    $('campoCondominio').hidden = false;
+    $('listaCondominios').innerHTML = CONDOMINIOS.map(function(c){ return '<option value="' + c[2].replace(/"/g, '&quot;') + '">' + c[1] + '</option>'; }).join('');
+  }
+
+  function soDigitos(v){ return String(v || '').replace(/\D/g, ''); }
+  function cpfValido(cpf){
+    cpf = soDigitos(cpf);
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    for (var t = 9; t < 11; t++){ var soma = 0; for (var i = 0; i < t; i++) soma += parseInt(cpf[i], 10) * (t + 1 - i); var d = (soma * 10) % 11 % 10; if (d !== parseInt(cpf[t], 10)) return false; }
+    return true;
+  }
+  function maskCpf(el){ var d = soDigitos(el.value).slice(0, 11), r = d; if (d.length > 9) r = d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9); else if (d.length > 6) r = d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6); else if (d.length > 3) r = d.slice(0,3)+'.'+d.slice(3); el.value = r; }
+  function maskTel(el){ var d = soDigitos(el.value).slice(0, 11), r = d; if (d.length > 6) r = '('+d.slice(0,2)+') '+d.slice(2, d.length > 10 ? 7 : 6)+'-'+d.slice(d.length > 10 ? 7 : 6); else if (d.length > 2) r = '('+d.slice(0,2)+') '+d.slice(2); el.value = r; }
+  function reduzir(arquivo){
+    return new Promise(function(resolve, reject){
+      var img = new Image(), url = URL.createObjectURL(arquivo);
+      img.onload = function(){ var esc = Math.min(1, 1024 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * esc); c.height = Math.round(img.height * esc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); c.toBlob(function(b){ b ? resolve(b) : reject(new Error('foto')); }, 'image/jpeg', 0.85); };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('foto')); };
+      img.src = url;
+    });
+  }
+  var SEM_FOTO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect width='150' height='150' fill='%23f8f9fb'/><text x='75' y='80' font-size='13' text-anchor='middle' fill='%23667085' font-family='Arial'>sem foto</text></svg>";
+
+  function erro(msg, alvo){ var e = $('erro'); e.textContent = msg; e.hidden = false; if (alvo){ alvo.classList.add('erro-campo'); alvo.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }
+  function renumerar(){ var cards = document.querySelectorAll('.morador'); Array.prototype.forEach.call(cards, function(c, i){ c.querySelector('.mtitulo').textContent = 'Morador ' + (i + 1); c.querySelector('.remover').hidden = i === 0; }); $('maisMorador').hidden = cards.length >= MAX_MORADORES; }
+  function novoMorador(){
+    var d = document.createElement('div'); d.className = 'morador'; d._foto = null;
+    d.innerHTML = '<div class="mhead"><strong class="mtitulo"></strong><button type="button" class="remover">Remover</button></div>' +
+      '<label>Nome completo *<input type="text" class="m-nome" maxlength="120" autocomplete="off"></label>' +
+      '<label>CPF <span class="op m-cpf-op"></span><input type="text" class="m-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" autocomplete="off"></label>' +
+      '<label>Data de nascimento *<input type="date" class="m-nasc" autocomplete="off"></label>' +
+      '<label>Telefone / WhatsApp <span class="op m-tel-op"></span><input type="tel" class="m-tel" inputmode="tel" maxlength="20" placeholder="(85) 99999-9999" autocomplete="off"></label>' +
+      '<label>E-mail <span class="op">(opcional)</span><input type="email" class="m-email" maxlength="80" autocomplete="off"></label>' +
+      '<div class="foto m-blocofoto"><strong style="font-size:14px;">Foto do rosto *</strong><img class="previa m-previa" alt="Prévia da foto" src="' + SEM_FOTO + '">' +
+      '<div class="botoes"><label>📷 Tirar foto<input type="file" class="m-cam" accept="image/*" capture="user"></label><label class="sec">🖼️ Escolher da galeria<input type="file" class="m-arq" accept="image/*"></label></div>' +
+      '<p class="dica">Rosto de frente, sem óculos escuros, boné ou máscara, com boa iluminação.</p></div>';
+    var q = function(s){ return d.querySelector(s); };
+    q('.m-cpf').addEventListener('input', function(){ maskCpf(this); }); q('.m-tel').addEventListener('input', function(){ maskTel(this); });
+    Array.prototype.forEach.call(d.querySelectorAll('input'), function(el){ el.addEventListener('input', function(){ el.classList.remove('erro-campo'); }); });
+    function escolher(ev){ var arq = ev.target.files && ev.target.files[0]; if (!arq) return; reduzir(arq).then(function(b){ d._foto = b; q('.m-previa').src = URL.createObjectURL(b); q('.m-blocofoto').classList.remove('erro-campo'); }).catch(function(){ d._foto = null; erro('Não consegui ler essa foto. Tente tirar outra.'); }); }
+    q('.m-cam').addEventListener('change', escolher); q('.m-arq').addEventListener('change', escolher);
+    q('.remover').addEventListener('click', function(){ d.remove(); renumerar(); atualizaObrigatorios(); });
+    $('moradores').appendChild(d); renumerar(); atualizaObrigatorios(); return d;
+  }
+  // CPF e telefone são obrigatórios para o 1º morador; para os demais (crianças, por exemplo) são opcionais
+  function atualizaObrigatorios(){ Array.prototype.forEach.call(document.querySelectorAll('.morador'), function(c, i){ c.querySelector('.m-cpf-op').textContent = i === 0 ? '*' : '(opcional)'; c.querySelector('.m-tel-op').textContent = i === 0 ? '*' : '(opcional)'; }); }
+  $('maisMorador').addEventListener('click', function(){ var c = novoMorador(); c.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  novoMorador();
+  $('unidade').addEventListener('input', function(){ this.classList.remove('erro-campo'); }); $('condominio').addEventListener('input', function(){ this.classList.remove('erro-campo'); });
+
+  function condominioEscolhido(){
+    if (condominioUrl) return { nome: condominioUrl, filial: filialUrl || null };
+    var v = ($('condominio').value || '').trim(); if (!v) return null;
+    var achado = CONDOMINIOS.filter(function(c){ return c[2].toUpperCase() === v.toUpperCase(); })[0];
+    if (achado) return { nome: achado[0], filial: achado[1] };
+    var iguais = CONDOMINIOS.filter(function(c){ return c[0].toUpperCase() === v.toUpperCase(); });
+    if (iguais.length > 1) return { repetido: true };
+    return { nome: v, filial: null };
+  }
+  $('f').addEventListener('submit', function(ev){
+    ev.preventDefault(); $('erro').hidden = true;
+    Array.prototype.forEach.call(document.querySelectorAll('.erro-campo'), function(e){ e.classList.remove('erro-campo'); });
+    if ($('site').value) return;
+    var cond = condominioEscolhido(); if (!cond){ erro('Informe o nome do condomínio.', $('condominio')); $('condominio').focus(); return; }
+    if (cond.repetido){ erro('Há mais de um condomínio com esse nome. Escolha o seu na lista, com a filial entre parênteses.', $('condominio')); $('condominio').focus(); return; }
+    var unidade = ($('unidade').value || '').trim(); if (!unidade){ erro('Informe o número da sua casa ou apartamento.', $('unidade')); $('unidade').focus(); return; }
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.morador')), moradores = [], cpfs = {};
+    for (var i = 0; i < cards.length; i++){
+      var c = cards[i], rot = 'Morador ' + (i + 1) + ': ', q = function(s){ return c.querySelector(s); };
+      var nome = (q('.m-nome').value || '').trim(); if (!nome || nome.split(/\s+/).length < 2){ erro(rot + 'informe o nome completo.', q('.m-nome')); q('.m-nome').focus(); return; }
+      var cpf = (q('.m-cpf').value || '').trim();
+      if (i === 0 || cpf){ if (!cpfValido(cpf)){ erro(rot + 'confira o CPF digitado.', q('.m-cpf')); q('.m-cpf').focus(); return; } }
+      if (cpf){ var k = soDigitos(cpf); if (cpfs[k]){ erro(rot + 'esse CPF já foi informado para outro morador desta unidade.', q('.m-cpf')); return; } cpfs[k] = true; }
+      var nasc = q('.m-nasc').value; if (!nasc){ erro(rot + 'informe a data de nascimento.', q('.m-nasc')); q('.m-nasc').focus(); return; }
+      var tel = soDigitos(q('.m-tel').value); if ((i === 0 || tel) && tel.length < 10){ erro(rot + 'informe o telefone com DDD.', q('.m-tel')); q('.m-tel').focus(); return; }
+      var email = (q('.m-email').value || '').trim(); if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ erro(rot + 'confira o e-mail digitado ou deixe em branco.', q('.m-email')); q('.m-email').focus(); return; }
+      if (!c._foto){ erro(rot + 'falta a foto do rosto.', q('.m-blocofoto')); return; }
+      moradores.push({ nome: nome, cpf: cpf || null, data_nascimento: nasc, telefone: q('.m-tel').value || null, email: email || null, foto: c._foto });
+    }
+    if (!$('aceite').checked){ erro('Para enviar, marque a autorização do uso dos dados.', $('aceite')); return; }
+    var botao = $('enviar'); botao.disabled = true; botao.textContent = 'Enviando...';
+    var envioId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2, 8);
+    var linhas = [], seq = Promise.resolve();
+    moradores.forEach(function(m, idx){
+      seq = seq.then(function(){
+        botao.textContent = 'Enviando foto ' + (idx + 1) + ' de ' + moradores.length + '...';
+        var caminho = Date.now() + '_' + idx + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+        return fetch(SUPABASE_URL + '/storage/v1/object/' + BUCKET + '/' + caminho, { method: 'POST', headers: Object.assign({ 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }, cab), body: m.foto })
+          .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error('foto HTTP ' + r.status + ' ' + t.slice(0, 100)); }); linhas.push({ condominio: cond.nome, filial: cond.filial, unidade: unidade, nome: m.nome, cpf: m.cpf, data_nascimento: m.data_nascimento, telefone: m.telefone, email: m.email, foto_url: SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + caminho, envio_id: envioId }); });
+      });
+    });
+    seq.then(function(){ return fetch(SUPABASE_URL + '/rest/v1/' + TABELA, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, cab), body: JSON.stringify(linhas) }); })
+      .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error('dados HTTP ' + r.status + ' ' + t.slice(0, 100)); });
+        $('resumoOk').textContent = moradores.length + (moradores.length === 1 ? ' morador cadastrado' : ' moradores cadastrados') + ' na unidade ' + unidade + ' — ' + cond.nome + '.';
+        $('telaForm').hidden = true; $('telaOk').hidden = false; window.scrollTo(0, 0); })
+      .catch(function(e){ console.warn(e); erro('Não foi possível enviar agora. Confira sua internet e tente de novo. Seus dados continuam preenchidos.'); })
+      .then(function(){ botao.disabled = false; botao.textContent = 'Enviar cadastro'; });
+  });
+  function limpaMoradores(){ $('moradores').innerHTML = ''; novoMorador(); $('aceite').checked = false; $('telaOk').hidden = true; $('telaForm').hidden = false; window.scrollTo(0, 0); }
+  $('maisUm').addEventListener('click', limpaMoradores);
+  $('outraUnidade').addEventListener('click', function(){ $('unidade').value = ''; limpaMoradores(); $('unidade').focus(); });
+})();
+</script>
+</body>
+</html>
