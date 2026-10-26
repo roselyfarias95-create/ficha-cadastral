@@ -27,6 +27,11 @@
   .botoes{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
   .botoes label{ margin:0; background:var(--navy); color:#fff; padding:10px 14px; border-radius:8px; font-size:14px; cursor:pointer; } .botoes label.sec{ background:#fff; color:var(--navy); border:1px solid var(--navy); } .botoes input{ display:none; }
   .dica{ font-size:12.5px; color:var(--mut); margin:0 0 8px; }
+  .prio{ border:2px solid var(--gold); border-radius:12px; background:#fffaf5; } .prio legend{ color:var(--gold); font-size:16px; }
+  .prio .aviso{ font-size:14px; margin:0 0 12px; color:var(--txt); } .prio .aviso b{ color:var(--navy); }
+  .contato{ border-top:1px dashed #e7c9ab; padding-top:10px; margin-top:6px; } .contato:first-of-type{ border-top:0; margin-top:0; padding-top:0; }
+  .chead{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; } .chead strong{ color:var(--navy); font-size:15px; }
+  .copia{ background:#fff; border:1px solid var(--navy); color:var(--navy); border-radius:8px; padding:6px 10px; font-size:12.5px; font-weight:600; cursor:pointer; }
   #maisMorador{ width:100%; background:#fff; border:2px dashed var(--navy); color:var(--navy); font-size:15.5px; font-weight:700; padding:13px; border-radius:10px; cursor:pointer; margin:0 0 14px; }
   .aceite{ display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:13.5px; } .aceite input{ margin-top:3px; width:20px; height:20px; flex:0 0 auto; }
   #erro{ background:#fee2e2; color:#991b1b; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:14px; margin:0 0 12px; }
@@ -49,6 +54,16 @@
         <div class="cond" id="blocoCondominio" hidden><small>Condomínio</small><b id="nomeCondominio"></b><span id="filialCondominio" hidden style="display:block; font-size:12.5px; color:var(--mut); margin-top:2px;"></span></div>
         <label id="campoCondominio" hidden>Condomínio *<input type="text" id="condominio" list="listaCondominios" maxlength="120" placeholder="Digite parte do nome e escolha na lista" autocomplete="off"><datalist id="listaCondominios"></datalist></label>
         <label>Casa ou apartamento (número) *<input type="text" id="unidade" maxlength="30" placeholder="Ex.: Apto 302 ou Casa 12" autocomplete="off"></label>
+      </fieldset>
+      <fieldset class="prio" id="blocoContatos">
+        <legend>📞 3 contatos prioritários para ligação</legend>
+        <p class="aviso">Informe <b>3 telefones</b>, <b>na ordem em que a portaria deve ligar</b> em caso de ocorrência na sua unidade. Pode ser você, familiares ou pessoas de confiança. <b>Manter esses contatos atualizados é o mais importante deste cadastro.</b></p>
+        <div class="contato"><div class="chead"><strong>1º contato *</strong><button type="button" class="copia" id="copiaMorador1">Usar os dados do Morador 1</button></div>
+          <label>Nome *<input type="text" id="c1nome" maxlength="80" autocomplete="off"></label><label>Telefone com DDD *<input type="tel" id="c1tel" inputmode="tel" maxlength="20" placeholder="(85) 99999-9999" autocomplete="off"></label></div>
+        <div class="contato"><div class="chead"><strong>2º contato <span style="font-weight:400; color:#c2570d; font-size:13px;">(recomendado)</span></strong></div>
+          <label>Nome<input type="text" id="c2nome" maxlength="80" autocomplete="off"></label><label>Telefone com DDD<input type="tel" id="c2tel" inputmode="tel" maxlength="20" placeholder="(85) 99999-9999" autocomplete="off"></label></div>
+        <div class="contato"><div class="chead"><strong>3º contato <span style="font-weight:400; color:#c2570d; font-size:13px;">(recomendado)</span></strong></div>
+          <label>Nome<input type="text" id="c3nome" maxlength="80" autocomplete="off"></label><label>Telefone com DDD<input type="tel" id="c3tel" inputmode="tel" maxlength="20" placeholder="(85) 99999-9999" autocomplete="off"></label></div>
       </fieldset>
       <div id="moradores"></div>
       <button type="button" id="maisMorador">➕ Adicionar outro morador desta unidade</button>
@@ -132,6 +147,13 @@
   novoMorador();
   $('unidade').addEventListener('input', function(){ this.classList.remove('erro-campo'); }); $('condominio').addEventListener('input', function(){ this.classList.remove('erro-campo'); });
 
+  ['c1tel', 'c2tel', 'c3tel'].forEach(function(id){ $(id).addEventListener('input', function(){ maskTel(this); }); });
+  ['c1nome', 'c1tel', 'c2nome', 'c2tel', 'c3nome', 'c3tel'].forEach(function(id){ $(id).addEventListener('input', function(){ this.classList.remove('erro-campo'); }); });
+  $('copiaMorador1').addEventListener('click', function(){
+    var m = document.querySelector('.morador'); if (!m) return;
+    $('c1nome').value = m.querySelector('.m-nome').value || ''; $('c1tel').value = m.querySelector('.m-tel').value || '';
+    if (!$('c1tel').value) erro('Preencha o telefone do Morador 1 para copiar.', m.querySelector('.m-tel'));
+  });
   function condominioEscolhido(){
     if (condominioUrl) return { nome: condominioUrl, filial: filialUrl || null };
     var v = ($('condominio').value || '').trim(); if (!v) return null;
@@ -161,7 +183,19 @@
       if (!c._foto){ erro(rot + 'falta a foto do rosto.', q('.m-blocofoto')); return; }
       moradores.push({ nome: nome, cpf: cpf || null, data_nascimento: nasc, telefone: q('.m-tel').value || null, email: email || null, foto: c._foto });
     }
+    // 3 contatos prioritários para ligação (o 1º é obrigatório; se o 2º ou o 3º tiver só nome ou só telefone, pede o que falta)
+    var contatos = [], tels = {};
+    for (var n = 1; n <= 3; n++){
+      var cn = ($('c' + n + 'nome').value || '').trim(), ct = ($('c' + n + 'tel').value || '').trim(), rotc = n + 'º contato: ';
+      if (!cn && !ct){ if (n === 1){ erro('Informe o 1º contato prioritário para ligação (nome e telefone).', $('c1nome')); $('c1nome').focus(); return; } contatos.push({ nome: null, tel: null }); continue; }
+      if (!cn){ erro(rotc + 'informe o nome.', $('c' + n + 'nome')); $('c' + n + 'nome').focus(); return; }
+      if (soDigitos(ct).length < 10){ erro(rotc + 'informe o telefone com DDD.', $('c' + n + 'tel')); $('c' + n + 'tel').focus(); return; }
+      var kt = soDigitos(ct); if (tels[kt]){ erro(rotc + 'esse telefone já foi informado em outro contato.', $('c' + n + 'tel')); return; } tels[kt] = true;
+      contatos.push({ nome: cn, tel: ct });
+    }
+    var preenchidos = contatos.filter(function(c){ return c.tel; }).length;
     if (!$('aceite').checked){ erro('Para enviar, marque a autorização do uso dos dados.', $('aceite')); return; }
+    if (preenchidos < 3 && !confirm('Você informou ' + preenchidos + ' de 3 contatos prioritários.\n\nA portaria precisa dos 3 telefones para conseguir falar com alguém em caso de ocorrência.\n\nDeseja enviar mesmo assim? (Cancelar para completar os contatos.)')){ $('c' + (preenchidos + 1) + 'nome').focus(); $('c' + (preenchidos + 1) + 'nome').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     var botao = $('enviar'); botao.disabled = true; botao.textContent = 'Enviando...';
     var envioId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2, 8);
     var linhas = [], seq = Promise.resolve();
@@ -170,19 +204,20 @@
         botao.textContent = 'Enviando foto ' + (idx + 1) + ' de ' + moradores.length + '...';
         var caminho = Date.now() + '_' + idx + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
         return fetch(SUPABASE_URL + '/storage/v1/object/' + BUCKET + '/' + caminho, { method: 'POST', headers: Object.assign({ 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }, cab), body: m.foto })
-          .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error('foto HTTP ' + r.status + ' ' + t.slice(0, 100)); }); linhas.push({ condominio: cond.nome, filial: cond.filial, unidade: unidade, nome: m.nome, cpf: m.cpf, data_nascimento: m.data_nascimento, telefone: m.telefone, email: m.email, foto_url: SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + caminho, envio_id: envioId }); });
+          .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error('foto HTTP ' + r.status + ' ' + t.slice(0, 100)); }); linhas.push({ condominio: cond.nome, filial: cond.filial, unidade: unidade, nome: m.nome, cpf: m.cpf, data_nascimento: m.data_nascimento, telefone: m.telefone, email: m.email, foto_url: SUPABASE_URL + '/storage/v1/object/public/' + BUCKET + '/' + caminho, envio_id: envioId,
+            contato1_nome: contatos[0].nome, contato1_telefone: contatos[0].tel, contato2_nome: contatos[1].nome, contato2_telefone: contatos[1].tel, contato3_nome: contatos[2].nome, contato3_telefone: contatos[2].tel }); });
       });
     });
     seq.then(function(){ return fetch(SUPABASE_URL + '/rest/v1/' + TABELA, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, cab), body: JSON.stringify(linhas) }); })
       .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error('dados HTTP ' + r.status + ' ' + t.slice(0, 100)); });
-        $('resumoOk').textContent = moradores.length + (moradores.length === 1 ? ' morador cadastrado' : ' moradores cadastrados') + ' na unidade ' + unidade + ' — ' + cond.nome + '.';
+        $('resumoOk').textContent = moradores.length + (moradores.length === 1 ? ' morador cadastrado' : ' moradores cadastrados') + ' na unidade ' + unidade + ' — ' + cond.nome + '. Contatos prioritários para ligação: ' + preenchidos + ' de 3.';
         $('telaForm').hidden = true; $('telaOk').hidden = false; window.scrollTo(0, 0); })
       .catch(function(e){ console.warn(e); erro('Não foi possível enviar agora. Confira sua internet e tente de novo. Seus dados continuam preenchidos.'); })
       .then(function(){ botao.disabled = false; botao.textContent = 'Enviar cadastro'; });
   });
   function limpaMoradores(){ $('moradores').innerHTML = ''; novoMorador(); $('aceite').checked = false; $('telaOk').hidden = true; $('telaForm').hidden = false; window.scrollTo(0, 0); }
   $('maisUm').addEventListener('click', limpaMoradores);
-  $('outraUnidade').addEventListener('click', function(){ $('unidade').value = ''; limpaMoradores(); $('unidade').focus(); });
+  $('outraUnidade').addEventListener('click', function(){ $('unidade').value = ''; ['c1nome', 'c1tel', 'c2nome', 'c2tel', 'c3nome', 'c3tel'].forEach(function(id){ $(id).value = ''; }); limpaMoradores(); $('unidade').focus(); });
 })();
 </script>
 </body>
